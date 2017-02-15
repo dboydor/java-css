@@ -33,13 +33,21 @@ import java.util.Vector;
 public class Selector {
     Vector<Vector<Tag>> paths = new Vector<Vector<Tag>>(8);
     Vector<Rule> rules = new Vector<Rule>(16);
-    Vector lastPath;
+    Vector<Tag> lastPath;
     public Tag lastTag;
     public Rule lastRule;
     private Vector<Integer> weights = new Vector<Integer>(1); // Contains weight (specificity) for each selector path  
 
+    public Selector() {
+        lastPath = new Vector<Tag>(4);
+        this.paths.addElement(lastPath);
+
+        lastTag = new Tag();
+        lastPath.addElement(lastTag);
+    }
+
     public boolean isEmpty() {
-        return (this.paths.size() == 0);
+        return this.lastTag.isEmpty();
     }
 
     // Number of paths for selector
@@ -76,14 +84,16 @@ public class Selector {
     public void calcWeight() {
         int count = this.paths.size();
         if (count != 0) {
+            Vector<Tag> path;
+            Tag tag;
             int weight;
 
             for (int x = 0; x < count; x++) {
                 weight = 0;
 
-                Vector<Tag> path = this.paths.elementAt(x);
+                path = this.paths.elementAt(x);
                 for (int y = 0; y < path.size(); y++) {
-                    Tag tag = path.elementAt(y);
+                    tag = path.elementAt(y);
                     weight += tag.getWeight();
                 }
 
@@ -94,26 +104,21 @@ public class Selector {
 
     // Reuse this object to represent another parsed CSS selector rule
     public Tag nextSelector() {
-        this.paths.removeAllElements();
-        rules.removeAllElements();
+        this.paths.setSize(0);
+        rules.setSize(0);
         this.weights.setSize(0);
 
-        lastPath = new Vector(4);
-        this.paths.addElement(lastPath);
-
-        lastTag = new Tag();
-        lastPath.addElement(lastTag);
-
-        return lastTag;
+        return this.nextPath();
     }
 
     // Add another path to the selector.  Paths are separated by commas.
     public Tag nextPath() {
         // Add the first tag to the first path
-        lastPath = new Vector(4);
+        lastPath = new Vector<Tag>(2);
         this.paths.addElement(lastPath);
 
-        lastTag = null;
+        lastTag = new Tag();
+        lastPath.addElement(lastTag);
 
         return lastTag;
     }
@@ -158,15 +163,19 @@ public class Selector {
         int count = this.paths.size();
 
         if (count != 0) {
+            Vector<Tag> path;
+            Tag tag;
+            Rule rule;
+
             for (int x = 0; x < count; x++) {
-                Vector path = this.paths.elementAt(x);
+                path = this.paths.elementAt(x);
 
                 for (int y = 0; y < path.size(); y++) {
-                    Tag tag = (Tag) path.elementAt(y);
+                    tag = path.elementAt(y);
                     tag.print((y == path.size() - 1));
                 }
 
-                System.out.print("(" + this.weights.elementAt(x) + ")");
+                System.out.print("(w=" + this.weights.elementAt(x) + ")");
 
                 if (x != count - 1)
                     System.out.print(", ");
@@ -177,7 +186,7 @@ public class Selector {
 
             count = rules.size();
             for (int x = 0; x < count; x++) {
-                Rule rule = (Rule) rules.elementAt(x);
+                rule = rules.elementAt(x);
                 rule.print();
             }
 

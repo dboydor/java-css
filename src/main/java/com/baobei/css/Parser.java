@@ -93,12 +93,7 @@ public class Parser {
                 case NAME:
                     switch (token) {
                         case Tokenizer.IDENTIFIER:
-                            if (state == NAME_FIRST) {
-                                if (!selector.isEmpty())
-                                    selectorParsed(selector);
-
-                                selector.nextSelector();
-                            } else {
+                            if (state == NAME) {
                                 selector.nextTag();
                             }
 
@@ -334,10 +329,9 @@ public class Parser {
                     }
                     break;
 
-                    // -----------------------------------------------------
-                    // Example: background-color: #0000ff
-                    // -----------------------------------------------------        
-
+                // -----------------------------------------------------
+                // Example: background-color: #0000ff
+                // -----------------------------------------------------
                 case RULE_NAME:
                     switch (token) {
                         case Tokenizer.IDENTIFIER:
@@ -348,7 +342,7 @@ public class Parser {
                             break;
 
                         case Tokenizer.BRACE_RIGHT: // End of rule block, back to parsing another selector
-                            state = NAME_FIRST;
+                            state = this.selectorEnd(selector);
                             break;
 
                         case Tokenizer.SEMICOLON: // Ignore empty semi-colons: ie. width: 10px;;
@@ -408,17 +402,16 @@ public class Parser {
                     }
                     break;
 
-                    // -----------------------------------------------------
-                    // Rule values examples:
-                    //
-                    //     helvetica, arial
-                    //     solid .25em #bbb
-                    //     5px auto -webkit-focus-ring-color
-                    //     linear-gradient(top,  #404040,  #000000)
-                    //     -webkit-gradient(linear, left top, left bottom, color-stop(35%, #eeeeee), color-stop(100%, #cccccc))
-                    //     background-image: linear-gradient(top, color(#8f9091, 52%) 6%, color(#8f9091, -36%) 95%, color(#8f9091, -20%) 100%);
-                    // -----------------------------------------------------       
-
+                // -----------------------------------------------------
+                // Rule values examples:
+                //
+                //  helvetica, arial
+                //  solid .25em #bbb
+                //  5px auto -webkit-focus-ring-color
+                //  linear-gradient(top,  #404040,  #000000)
+                //  -webkit-gradient(linear, left top, left bottom, color-stop(35%, #eeeeee), color-stop(100%, #cccccc))
+                //  background-image: linear-gradient(top, color(#8f9091, 52%) 6%, color(#8f9091, -36%) 95%, color(#8f9091, -20%) 100%);
+                // -----------------------------------------------------
                 case RULE_VALUE_NAME:
                     switch (token) {
                         case Tokenizer.IDENTIFIER:
@@ -451,7 +444,7 @@ public class Parser {
                             break;
 
                         case Tokenizer.BRACE_RIGHT: // This tolerates missing ';' for last rule
-                            state = NAME_FIRST;
+                            state = this.selectorEnd(selector);
                             break;
 
                         default:
@@ -569,8 +562,15 @@ public class Parser {
 
             data.setLength(0);
         }
+    }
 
-        selectorParsed(selector);
+    private int selectorEnd(Selector selector) {
+        if (!selector.isEmpty())
+            selectorParsed(selector);
+
+        selector.nextSelector();
+
+        return NAME_FIRST;
     }
 
     private void error(String state, int token, StringBuffer data, int line) {

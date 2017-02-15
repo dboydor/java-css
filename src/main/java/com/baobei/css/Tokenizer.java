@@ -173,7 +173,7 @@ public class Tokenizer {
                             found = (token != STRING);
                             break;
 
-                            // Start comment block /* ... */
+                        // Start comment block /* ... */
                         case '*':
                             if (token != STRING) {
                                 if (back[0] == '/') {

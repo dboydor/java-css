@@ -11,12 +11,13 @@ package com.baobei.css.model;
 import java.util.Vector;
 
 public class Tag {
-    public static final int RELATION_DESCENDANT = 0; // A B
-    public static final int RELATION_CLASS = 1; // .
-    public static final int RELATION_ID = 2; // #
-    public static final int RELATION_CHILD = 3; // A > B
-    public static final int RELATION_SIBLING = 4; // A ~ B
-    public static final int RELATION_SIBLING_ADJACENT = 5; // A + B
+    public static final int RELATION_UNDEFINED = 0;
+    public static final int RELATION_DESCENDANT = 1; // A B
+    public static final int RELATION_CLASS = 2; // .
+    public static final int RELATION_ID = 3; // #
+    public static final int RELATION_CHILD = 4; // A > B
+    public static final int RELATION_SIBLING = 5; // A ~ B
+    public static final int RELATION_SIBLING_ADJACENT = 6; // A + B
 
     public static final int ATTRIB_NONE = 0; // no match
     public static final int ATTRIB_ANY = 1; // any match
@@ -34,6 +35,13 @@ public class Tag {
     public int attribMatch;
     public Vector<String> pseudos; // Array of strings, or null if no pseudos defined for this tag
     public Vector<String> pseudoArgs; // Array of strings, or null if no pseudos defined for this tag
+
+    public Tag() {
+    }
+
+    public boolean isEmpty() {
+        return (this.name == null && this.attribKey == null && this.relation == RELATION_UNDEFINED);
+    }
 
     public void addPseudo(String pseudo) {
         if (pseudos == null) {
@@ -120,7 +128,7 @@ public class Tag {
         if (pseudos != null) {
             int count = pseudos.size();
             for (int x = 0; x < count; x++) {
-                System.out.print(":" + pseudos.elementAt(x));
+                System.out.print("::" + pseudos.elementAt(x));
 
                 String arg = pseudoArgs.elementAt(x);
                 if (arg != null)
